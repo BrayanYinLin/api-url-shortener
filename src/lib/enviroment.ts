@@ -1,0 +1,21 @@
+import 'dotenv/config'
+
+const {
+  PORT,
+  GITHUB_CLIENT,
+  GITHUB_SECRET,
+  JWT_SECRET,
+  POSTGRES_USER = 'admin',
+  POSTGRES_PASSWORD,
+  ENVIRONMENT = 'DEVELOPMENT'
+} = process.env
+
+export {
+  PORT,
+  GITHUB_CLIENT,
+  GITHUB_SECRET,
+  JWT_SECRET,
+  POSTGRES_USER,
+  POSTGRES_PASSWORD,
+  ENVIRONMENT
+}
