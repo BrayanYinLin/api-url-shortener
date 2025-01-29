@@ -12,5 +12,6 @@ export const ERROR_MESSAGES = {
   REFRESH_ACCESS_TOKEN: 'Missing access token. Refresh token.',
   NOT_AUTHENTICATED: 'Missing authentication. Sign in again.',
   TOKEN_ERROR: 'Error in tokens.',
-  UNEXPECTED: 'Unexpected error'
+  UNEXPECTED: 'Unexpected error.',
+  MISSING_PARAM: 'Parameter at endpoint is missing.'
 }

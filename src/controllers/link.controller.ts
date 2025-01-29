@@ -4,7 +4,7 @@ import { JWT_SECRET } from '../lib/enviroment'
 import { JsonWebTokenError, verify } from 'jsonwebtoken'
 import { User } from '../types'
 import { ERROR_MESSAGES } from '../lib/definitions'
-import { checkLink } from '../models/link.model'
+import { checkLink, checkUpdateLink } from '../models/link.model'
 
 class LinkCtrl {
   async findEveryLinksByUser(req: Request, res: Response) {
@@ -51,11 +51,40 @@ class LinkCtrl {
         { id }
       )
 
-      return res.json(link)
+      return res.status(201).json(link)
     } catch (e) {
       console.error(e)
       return res.json({
         msg: `${ERROR_MESSAGES.UNEXPECTED} At links by user`
+      })
+    }
+  }
+
+  async editLink(req: Request, res: Response) {
+    const database = new Local()
+    const { long, short } = req.body
+    const { id } = req.params
+
+    if (!id) {
+      return res.status(400).json({ msg: ERROR_MESSAGES.MISSING_PARAM })
+    }
+
+    try {
+      const { data, error } = checkUpdateLink({ long, short })
+
+      if (error) return res.status(422).json(error)
+
+      const editted = await database.editLink({
+        id,
+        long: data.long,
+        short: data.short
+      })
+
+      return res.json(editted)
+    } catch (e) {
+      console.error(e)
+      return res.json({
+        msg: `${ERROR_MESSAGES.UNEXPECTED} At edit endpoint.`
       })
     }
   }

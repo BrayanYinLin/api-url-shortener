@@ -7,5 +7,6 @@ const controller = new LinkCtrl()
 
 routerLink.get('/', controller.findEveryLinksByUser)
 routerLink.post('/', decryptUser(), controller.createLink)
+routerLink.patch('/:id', decryptUser(), controller.editLink)
 
 export { routerLink }

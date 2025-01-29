@@ -182,9 +182,37 @@ class Local {
         values: [inserted.id!, id]
       })
 
-      const link = await client.query({
+      const {
+        rows: [link]
+      } = await client.query({
         text: 'SELECT * FROM vw_link WHERE id = $1',
         values: [inserted.id!]
+      })
+
+      return link
+    } finally {
+      client.release()
+    }
+  }
+
+  async editLink({ id, long, short }: Link) {
+    const client = await this.pool.connect()
+
+    if (!id) {
+      throw new MissingParameter('Identifier not provided')
+    }
+
+    try {
+      await client.query({
+        text: 'UPDATE tb_link SET link_long = COALESCE($1, link_long), link_short = COALESCE($2, link_long) WHERE link_id = $3',
+        values: [long, short, id]
+      })
+
+      const {
+        rows: [link]
+      } = await client.query<Link>({
+        text: 'SELECT * FROM vw_link WHERE id = $1',
+        values: [id!]
       })
 
       return link

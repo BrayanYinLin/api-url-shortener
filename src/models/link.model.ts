@@ -13,4 +13,13 @@ const checkLink = (linkToCheck: Link) => {
   return link.safeParse(linkToCheck)
 }
 
-export { link, checkLink }
+const checkUpdateLink = (linkToCheck: Link) => {
+  return link
+    .omit({
+      id: true,
+      created_at: true
+    })
+    .safeParse(linkToCheck)
+}
+
+export { link, checkLink, checkUpdateLink }
