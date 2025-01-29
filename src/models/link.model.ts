@@ -16,8 +16,10 @@ const checkLink = (linkToCheck: Link) => {
 const checkUpdateLink = (linkToCheck: Link) => {
   return link
     .omit({
-      id: true,
       created_at: true
+    })
+    .required({
+      id: true
     })
     .safeParse(linkToCheck)
 }

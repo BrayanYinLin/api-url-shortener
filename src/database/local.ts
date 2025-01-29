@@ -163,6 +163,28 @@ class Local {
     }
   }
 
+  async findLinkbyShort({ short }: Pick<Link, 'short'>) {
+    const client = await this.pool.connect()
+
+    try {
+      const {
+        rowCount,
+        rows: [link]
+      } = await client.query<Link>({
+        text: 'SELECT * FROM vw_link WHERE short = $1',
+        values: [short]
+      })
+
+      if (!rowCount || rowCount === 0) {
+        return null
+      }
+
+      return link
+    } finally {
+      client.release()
+    }
+  }
+
   async createLink(
     { long, short }: Pick<Link, 'long' | 'short'>,
     { id }: Pick<User, 'id'>
@@ -179,7 +201,7 @@ class Local {
 
       await client.query({
         text: 'INSERT INTO tb_link_per_user (user_id, link_id) VALUES ($1, $2)',
-        values: [inserted.id!, id]
+        values: [id, inserted.id!]
       })
 
       const {
@@ -204,7 +226,7 @@ class Local {
 
     try {
       await client.query({
-        text: 'UPDATE tb_link SET link_long = COALESCE($1, link_long), link_short = COALESCE($2, link_long) WHERE link_id = $3',
+        text: 'UPDATE tb_link SET link_long = COALESCE($1, link_long), link_short = COALESCE($2, link_short)  WHERE link_id = $3',
         values: [long, short, id]
       })
 

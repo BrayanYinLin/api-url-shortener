@@ -46,6 +46,13 @@ class LinkCtrl {
 
       if (error) return res.status(422).json(error)
 
+      const check = await database.findLinkbyShort({ short })
+
+      // console.log(`Is there any short with this name? ${check}`)
+      if (check) {
+        return res.status(400).json({ msg: ERROR_MESSAGES.NAME_UNAVAILABLE })
+      }
+
       const link = await database.createLink(
         { long: data.long, short: data.short },
         { id }
@@ -70,12 +77,19 @@ class LinkCtrl {
     }
 
     try {
-      const { data, error } = checkUpdateLink({ long, short })
+      const { data, error } = checkUpdateLink({ id, long, short })
 
       if (error) return res.status(422).json(error)
 
+      const check = await database.findLinkbyShort({ short: data.short })
+
+      // console.log(`Is there any short with this name? ${check}`)
+      if (check) {
+        return res.status(400).json({ msg: ERROR_MESSAGES.NAME_UNAVAILABLE })
+      }
+
       const editted = await database.editLink({
-        id,
+        id: data.id,
         long: data.long,
         short: data.short
       })

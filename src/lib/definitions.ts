@@ -13,5 +13,6 @@ export const ERROR_MESSAGES = {
   NOT_AUTHENTICATED: 'Missing authentication. Sign in again.',
   TOKEN_ERROR: 'Error in tokens.',
   UNEXPECTED: 'Unexpected error.',
-  MISSING_PARAM: 'Parameter at endpoint is missing.'
+  MISSING_PARAM: 'Parameter at endpoint is missing.',
+  NAME_UNAVAILABLE: 'Short name for link is unavailable. Try another one.'
 }

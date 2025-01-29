@@ -3,7 +3,9 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "dev": "ts-node-dev src/index.ts"
+    "dev": "ts-node-dev src/index.ts",
+    "lint": "eslint .",
+    "test": "vitest"
   },
   "keywords": [],
   "author": "Brayan Yin Lin",
@@ -35,6 +37,7 @@
     "prettier": "^3.4.2",
     "ts-node-dev": "^2.0.0",
     "typescript": "^5.7.3",
-    "typescript-eslint": "^8.21.0"
+    "typescript-eslint": "^8.21.0",
+    "vitest": "^3.0.4"
   }
 }
