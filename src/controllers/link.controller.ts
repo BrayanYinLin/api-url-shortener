@@ -7,8 +7,13 @@ import { ERROR_MESSAGES } from '../lib/definitions'
 import { checkLink, checkUpdateLink } from '../models/link.model'
 
 class LinkCtrl {
+  database!: Local
+
+  constructor(database: Local) {
+    this.database = database
+  }
+
   async findEveryLinksByUser(req: Request, res: Response) {
-    const database = new Local()
     const access_token = req.cookies.access_token
     const refresh_token = req.cookies.refresh_token
 
@@ -21,7 +26,7 @@ class LinkCtrl {
     try {
       const { id } = verify(access_token, JWT_SECRET!) as User
 
-      const links = await database.findEveryLinksByUser({ id: id! })
+      const links = await this.database.findEveryLinksByUser({ id: id! })
 
       return res.json(links)
     } catch (e) {
@@ -37,8 +42,6 @@ class LinkCtrl {
   }
 
   async createLink(req: Request, res: Response) {
-    const database = new Local()
-
     try {
       const { id } = req.user!
       const { long, short } = req.body
@@ -46,14 +49,14 @@ class LinkCtrl {
 
       if (error) return res.status(422).json(error)
 
-      const check = await database.findLinkbyShort({ short })
+      const check = await this.database.findLinkbyShort({ short })
 
       // console.log(`Is there any short with this name? ${check}`)
       if (check) {
         return res.status(400).json({ msg: ERROR_MESSAGES.NAME_UNAVAILABLE })
       }
 
-      const link = await database.createLink(
+      const link = await this.database.createLink(
         { long: data.long, short: data.short },
         { id }
       )
