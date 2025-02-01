@@ -7,8 +7,9 @@ const database = new Local()
 const routerLink = Router()
 const controller = new LinkCtrl(database)
 
-routerLink.get('/', controller.findEveryLinksByUser)
-routerLink.post('/', decryptUser(), controller.createLink)
-routerLink.patch('/:id', decryptUser(), controller.editLink)
+routerLink.get('/', controller.findLinkByShort.bind(controller))
+routerLink.get('/user', controller.findEveryLinksByUser.bind(controller))
+routerLink.post('/', decryptUser(), controller.createLink.bind(controller))
+routerLink.patch('/:id', decryptUser(), controller.editLink.bind(controller))
 
 export { routerLink }
