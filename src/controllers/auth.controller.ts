@@ -13,8 +13,13 @@ import { GoogleTokenPayload, User } from '../types'
 import { PROVIDERS } from '../lib/definitions'
 
 class AuthCtrl {
+  database!: Local
+
+  constructor(database: Local) {
+    this.database = database
+  }
+
   async auth(req: Request, res: Response) {
-    const database = new Local()
     const access_token = req.cookies.access_token
     const refresh_token = req.cookies.refresh_token
 
@@ -29,7 +34,7 @@ class AuthCtrl {
     try {
       const recovered = verify(access_token, JWT_SECRET!) as User
 
-      const user = await database.findUserById({ id: recovered.id! })
+      const user = await this.database.findUserById({ id: recovered.id! })
 
       // const { access, refresh } = encryptUser({ payload: user })
       // const { access_settings, refresh_settings } = setCookiesSettings()
@@ -48,7 +53,6 @@ class AuthCtrl {
   }
 
   async refresh(req: Request, res: Response) {
-    const database = new Local()
     const access_token = req.cookies.access_token
     const refresh_token = req.cookies.refresh_token
 
@@ -59,7 +63,7 @@ class AuthCtrl {
     try {
       const recovered = verify(access_token, JWT_SECRET!) as User
 
-      const user = await database.findUserById(recovered)
+      const user = await this.database.findUserById(recovered)
 
       const { access, refresh } = encryptUser({ payload: user })
       const { access_settings, refresh_settings } = setCookiesSettings()
@@ -84,7 +88,6 @@ class AuthCtrl {
   }
 
   async callbackGithub(req: Request, res: Response) {
-    const database = new Local()
     const { code } = req.query
 
     if (!code) return res.status(400).json({ msg: 'No code provided' })
@@ -98,7 +101,7 @@ class AuthCtrl {
     try {
       const access_token = await getGithubAccessToken({ params: searchParams })
       const userRecovered = await getGithubUser({ access_token })
-      const checkUser = await database.findUserByEmail({
+      const checkUser = await this.database.findUserByEmail({
         email: userRecovered.email
       })
 
@@ -106,7 +109,8 @@ class AuthCtrl {
         throw new EmailNotAvailable('This email is used by another provider')
       }
 
-      const newUser = checkUser ?? (await database.createUser(userRecovered))
+      const newUser =
+        checkUser ?? (await this.database.createUser(userRecovered))
       const { access, refresh } = encryptUser({ payload: newUser })
       const { access_settings, refresh_settings } = setCookiesSettings()
 
@@ -129,7 +133,6 @@ class AuthCtrl {
   }
 
   async authorizeGoogle(req: Request, res: Response) {
-    const database = new Local()
     const { token } = req.body
 
     try {
@@ -142,7 +145,7 @@ class AuthCtrl {
         avatar: decoded.picture
       }
 
-      const checkUser = await database.findUserByEmail({
+      const checkUser = await this.database.findUserByEmail({
         email: mappedUser.email
       })
 
@@ -150,7 +153,7 @@ class AuthCtrl {
         throw new EmailNotAvailable('This email is used by another provider')
       }
 
-      const newUser = checkUser ?? (await database.createUser(mappedUser))
+      const newUser = checkUser ?? (await this.database.createUser(mappedUser))
       const { access, refresh } = encryptUser({ payload: newUser })
       const { access_settings, refresh_settings } = setCookiesSettings()
 

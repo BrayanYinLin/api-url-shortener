@@ -1,8 +1,10 @@
 import { Router } from 'express'
 import { AuthCtrl } from '../controllers/auth.controller'
+import { Local } from '../database/local'
 
+const database = new Local()
 const routerAuth = Router()
-const controller = new AuthCtrl()
+const controller = new AuthCtrl(database)
 
 routerAuth.get('/', controller.auth)
 
