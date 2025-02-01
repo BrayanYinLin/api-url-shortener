@@ -105,6 +105,31 @@ class LinkCtrl {
       })
     }
   }
+
+  //  To get access into the original link (update clicks)
+  async findLinkByShort(req: Request, res: Response) {
+    const { short } = req.query
+
+    try {
+      const link = await this.database.findLinkbyShort({ short: String(short) })
+
+      if (!link) {
+        return res.status(404).json({ msg: ERROR_MESSAGES.LINK_NOT_FOUND })
+      }
+
+      await this.database.increaseClickByLink({ id: link.id! })
+
+      return res.status(200).json({
+        id: String(link.id),
+        long: link.long,
+        short: link.short,
+        clicks: Number(link.clicks),
+        created_at: link.created_at
+      })
+    } catch (e) {
+      console.error(e)
+    }
+  }
 }
 
 export { LinkCtrl }

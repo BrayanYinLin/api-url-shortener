@@ -14,5 +14,6 @@ export const ERROR_MESSAGES = {
   TOKEN_ERROR: 'Error in tokens.',
   UNEXPECTED: 'Unexpected error.',
   MISSING_PARAM: 'Parameter at endpoint is missing.',
-  NAME_UNAVAILABLE: 'Short name for link is unavailable. Try another one.'
+  NAME_UNAVAILABLE: 'Short name for link is unavailable. Try another one.',
+  LINK_NOT_FOUND: 'Short link was not found.'
 }

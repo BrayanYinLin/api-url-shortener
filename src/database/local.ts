@@ -242,6 +242,32 @@ class Local {
       client.release()
     }
   }
+
+  async increaseClickByLink({ id }: Required<Pick<Link, 'id'>>) {
+    const client = await this.pool.connect()
+
+    if (!id) {
+      throw new MissingParameter('Identifier not provided')
+    }
+
+    try {
+      await client.query({
+        text: 'UPDATE tb_link SET link_clicks = link_clicks + 1  WHERE link_id = $1',
+        values: [id]
+      })
+
+      // const {
+      //   rows: [link]
+      // } = await client.query<Link>({
+      //   text: 'SELECT * FROM vw_link WHERE id = $1',
+      //   values: [id!]
+      // })
+
+      // return link
+    } finally {
+      client.release()
+    }
+  }
 }
 
 export { Local }
