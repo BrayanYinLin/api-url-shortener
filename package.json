@@ -13,6 +13,7 @@
   "type": "commonjs",
   "description": "API Rest to manage short links",
   "dependencies": {
+    "axios": "1.7.9",
     "cookie-parser": "^1.4.7",
     "cors": "2.8.5",
     "dotenv": "16.4.7",

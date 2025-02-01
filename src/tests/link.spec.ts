@@ -1,24 +1,36 @@
 import { describe, expect, it } from 'vitest'
 import { link } from '../models/link.model'
+import axios from 'axios'
 
 describe('Links tests', () => {
   //  Passed
-  it.skip('should create a link', async () => {
-    const response = await fetch('http://localhost:5373/api/link/', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json; charset=utf-8'
-      },
-      body: JSON.stringify({
-        long: 'https://music.youtube.com/watch?v=gE2tMp-ou7s&si=sE5bQWrePacGMLDA',
-        short: 'brujitas-salemsosas'
-      })
-    })
+  it.skip('shoud return link info', async () => {
+    const { data, status } = await axios.get(
+      'http://localhost:5373/api/link/?short=costar-kevin-kaarl'
+    )
 
-    const parsed = await response.json()
-    console.log(parsed)
-    expect(response.ok).toBeTruthy()
-    expect(() => link.parse(parsed)).not.toThrow()
+    console.log(data)
+    expect(status).toBe(200)
+    expect(() => link.parse(data)).not.toThrow()
+  })
+
+  //  Passed
+  it.skip('should create a link', async () => {
+    const { data, status } = await axios.post(
+      'http://localhost:5373/api/link/',
+      {
+        long: 'https://music.youtube.com/watch?v=uHv2SSHhprA&si=KTbXaTtjcHTDFvEG',
+        short: 'costar-kevin-kaarl'
+      },
+      {
+        headers: {
+          'Content-Type': 'application/json; charset=utf-8'
+        }
+      }
+    )
+
+    expect(status).toBe(201)
+    expect(() => link.parse(data)).not.toThrow()
   })
 
   //  Passed
