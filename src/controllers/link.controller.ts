@@ -5,6 +5,7 @@ import { JsonWebTokenError, verify } from 'jsonwebtoken'
 import { User } from '../types'
 import { ERROR_MESSAGES } from '../lib/definitions'
 import { checkLink, checkUpdateLink } from '../models/link.model'
+import { MissingParameter } from '../lib/errors'
 
 class LinkCtrl {
   database!: Local
@@ -127,7 +128,37 @@ class LinkCtrl {
         created_at: link.created_at
       })
     } catch (e) {
+      if (e instanceof MissingParameter) {
+        return res.status(400).json({ msg: e.message })
+      } else {
+        console.error(e)
+        return res
+          .status(400)
+          .json({ msg: `${ERROR_MESSAGES.UNEXPECTED} Looking by short.` })
+      }
+    }
+  }
+
+  async deleteLinkById(req: Request, res: Response) {
+    const { id } = req.params
+
+    if (!id) {
+      return res.status(400).json({ msg: 'Missing identifier (id).' })
+    }
+
+    try {
+      const { deleted } = await this.database.deleteLinkById({ id })
+
+      if (!deleted) {
+        return res.status(400).json({ msg: 'Link could not be deleted' })
+      }
+
+      return res.status(200).json({ msg: 'Deleted successfully' })
+    } catch (e) {
       console.error(e)
+      return res
+        .status(400)
+        .json({ msg: `${ERROR_MESSAGES.UNEXPECTED} Deleting link.` })
     }
   }
 }

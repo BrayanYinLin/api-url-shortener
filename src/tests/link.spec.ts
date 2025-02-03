@@ -35,23 +35,31 @@ describe('Links tests', () => {
 
   //  Passed
   it.skip('should update a link', async () => {
-    const response = await fetch(
+    const { data, status } = await axios.patch(
       'http://localhost:5373/api/link/e72ff0d0-e7b0-4faa-bb81-8a164609cb21',
       {
-        method: 'PATCH',
+        long: 'https://music.youtube.com/watch?v=gE2tMp-ou7s&si=sE5bQWrePacGMLDA',
+        short: 'brujas-salem'
+      },
+      {
         headers: {
           'Content-Type': 'application/json; charset=utf-8'
-        },
-        body: JSON.stringify({
-          long: 'https://music.youtube.com/watch?v=gE2tMp-ou7s&si=sE5bQWrePacGMLDA',
-          short: 'brujas-salem'
-        })
+        }
       }
     )
 
-    const parsed = await response.json()
-    console.log(parsed)
-    expect(response.ok).toBeTruthy()
-    expect(() => link.parse(parsed)).not.toThrow()
+    expect(status).toBe(200)
+    expect(() => link.parse(data)).not.toThrow()
+  })
+
+  //  Passed
+  it.skip('should delete a link', async () => {
+    const { data, status } = await axios.delete(
+      'http://localhost:5373/api/link/e72ff0d0-e7b0-4faa-bb81-8a164609cb21'
+    )
+
+    expect(status).toBe(200)
+    expect(data).toHaveProperty('msg')
+    expect(data.msg).toBe('Deleted successfully')
   })
 })

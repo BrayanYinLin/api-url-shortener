@@ -17,3 +17,4 @@ export const ErrorMissingEmail = createError({
 export const EmailNotAvailable = createError({ name: 'EmailNotAvailable' })
 export const UserNotFound = createError({ name: 'UserNotFound' })
 export const MissingParameter = createError({ name: 'MissingParameter' })
+export const LinkNotFound = createError({ name: 'LinkNotFound' })

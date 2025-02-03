@@ -1,7 +1,7 @@
 import { Pool } from 'pg'
 import { POSTGRES_PASSWORD, POSTGRES_USER } from '../lib/enviroment'
 import { Link, Provider, User } from '../types'
-import { MissingParameter, UserNotFound } from '../lib/errors'
+import { LinkNotFound, MissingParameter, UserNotFound } from '../lib/errors'
 
 class Local {
   static instance: Local | null = null
@@ -264,6 +264,34 @@ class Local {
       // })
 
       // return link
+    } finally {
+      client.release()
+    }
+  }
+
+  async deleteLinkById({ id }: Required<Pick<Link, 'id'>>) {
+    const client = await this.pool.connect()
+
+    try {
+      const { rowCount: connections } = await client.query({
+        text: 'DELETE FROM tb_link_per_user WHERE link_id = $1',
+        values: [id]
+      })
+
+      if (!connections) {
+        throw new LinkNotFound('Link not found in relation with user')
+      }
+
+      const { rowCount: deletedRows } = await client.query({
+        text: 'DELETE FROM tb_link WHERE link_id = $1',
+        values: [id]
+      })
+
+      if (!deletedRows) {
+        throw new LinkNotFound('Link was not found')
+      }
+
+      return { deleted: Boolean(deletedRows) }
     } finally {
       client.release()
     }
