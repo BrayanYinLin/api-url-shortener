@@ -1,5 +1,12 @@
 import { Request, Response } from 'express'
-import { GITHUB_CLIENT, GITHUB_SECRET, JWT_SECRET } from '../lib/enviroment'
+import {
+  GITHUB_CLIENT,
+  GITHUB_SECRET,
+  GOOGLE_CALLBACK,
+  GOOGLE_CLIENT,
+  GOOGLE_SECRET,
+  JWT_SECRET
+} from '../lib/enviroment'
 import { getGithubAccessToken, getGithubUser } from '../lib/services'
 import {
   EmailNotAvailable,
@@ -8,9 +15,10 @@ import {
 } from '../lib/errors'
 import { encryptUser, setCookiesSettings } from '../lib/utils'
 import { Local } from '../database/local'
-import { decode, JsonWebTokenError, verify } from 'jsonwebtoken'
-import { GoogleTokenPayload, User } from '../types'
-import { PROVIDERS } from '../lib/definitions'
+import { JsonWebTokenError, verify } from 'jsonwebtoken'
+import { User } from '../types'
+import { ERROR_MESSAGES, PROVIDERS } from '../lib/definitions'
+import axios from 'axios'
 
 class AuthCtrl {
   database!: Local
@@ -61,7 +69,7 @@ class AuthCtrl {
     }
 
     try {
-      const recovered = verify(access_token, JWT_SECRET!) as User
+      const recovered = verify(refresh_token, JWT_SECRET!) as Pick<User, 'id'>
 
       const user = await this.database.findUserById(recovered)
 
@@ -80,6 +88,13 @@ class AuthCtrl {
         return res.json({ msg: 'Unexpected error' })
       }
     }
+  }
+
+  async logout(_: Request, res: Response) {
+    return res
+      .clearCookie('access_token')
+      .clearCookie('refresh_token')
+      .json({ msg: 'Log out succesfully' })
   }
 
   async authorizeGithub(_: Request, res: Response) {
@@ -132,42 +147,78 @@ class AuthCtrl {
     }
   }
 
-  async authorizeGoogle(req: Request, res: Response) {
-    const { token } = req.body
+  async authorizeGoogle(_: Request, res: Response) {
+    const root =
+      'https://accounts.google.com/o/oauth2/v2/auth/oauthchooseaccount'
+    const options = {
+      redirect_uri: GOOGLE_CALLBACK!,
+      client_id: GOOGLE_CLIENT!,
+      access_type: 'offline',
+      response_type: 'code',
+      prompt: 'consent',
+      scope: [
+        'https://www.googleapis.com/auth/userinfo.email',
+        'https://www.googleapis.com/auth/userinfo.profile'
+      ].join(' ')
+    }
+
+    const qs = new URLSearchParams(options)
+
+    return res.json({ link: `${root}?${qs.toString()}` })
+  }
+
+  async callbackGoogle(req: Request, res: Response) {
+    const { code } = req.query
+
+    if (!code) return res.status(400).json({ msg: 'Missing code' })
 
     try {
-      const decoded = decode(token) as GoogleTokenPayload
+      const { data } = await axios.post('https://oauth2.googleapis.com/token', {
+        code,
+        client_id: GOOGLE_CLIENT,
+        client_secret: GOOGLE_SECRET,
+        redirect_uri: GOOGLE_CALLBACK,
+        grant_type: 'authorization_code'
+      })
 
-      const mappedUser: User = {
-        provider: { provider_name: PROVIDERS.GOOGLE },
-        email: decoded.email,
-        name: decoded.name,
-        avatar: decoded.picture
-      }
+      const { access_token } = data
+
+      const { data: user } = await axios.get(
+        'https://www.googleapis.com/oauth2/v2/userinfo',
+        {
+          headers: {
+            Authorization: `Bearer ${access_token}`
+          }
+        }
+      )
 
       const checkUser = await this.database.findUserByEmail({
-        email: mappedUser.email
+        email: user.email
       })
 
       if (checkUser && checkUser.provider.provider_name !== PROVIDERS.GOOGLE) {
         throw new EmailNotAvailable('This email is used by another provider')
       }
 
-      const newUser = checkUser ?? (await this.database.createUser(mappedUser))
+      const newUser =
+        checkUser ??
+        (await this.database.createUser({
+          email: user.email,
+          name: user.name,
+          avatar: user.picture,
+          provider: { provider_name: PROVIDERS.GOOGLE }
+        }))
       const { access, refresh } = encryptUser({ payload: newUser })
       const { access_settings, refresh_settings } = setCookiesSettings()
 
       return res
+        .status(201)
         .cookie('access_token', access, access_settings)
         .cookie('refresh_token', refresh, refresh_settings)
         .json(newUser)
     } catch (e) {
-      if (e instanceof EmailNotAvailable) {
-        return res.status(400).json({ msg: e.message })
-      } else {
-        console.error(e)
-        return res.status(400).json({ msg: 'unexpected error' })
-      }
+      console.error(e)
+      return res.status(400).json({ msg: ERROR_MESSAGES.UNEXPECTED })
     }
   }
 }

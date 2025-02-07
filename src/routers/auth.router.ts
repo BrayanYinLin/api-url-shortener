@@ -12,8 +12,12 @@ routerAuth.get('/github', controller.authorizeGithub.bind(controller))
 
 routerAuth.get('/github/callback', controller.callbackGithub.bind(controller))
 
+routerAuth.get('/google', controller.authorizeGoogle.bind(controller))
+
+routerAuth.get('/google/callback', controller.callbackGoogle.bind(controller))
+
 routerAuth.get('/refresh', controller.refresh.bind(controller))
 
-routerAuth.post('/google', controller.authorizeGoogle.bind(controller))
+routerAuth.get('/logout', controller.logout.bind(controller))
 
 export { routerAuth }

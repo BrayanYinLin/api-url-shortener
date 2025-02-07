@@ -14,13 +14,9 @@ export const decryptUser = () => {
     } else if (!access_token && !refresh_token) {
       return res.status(401).json({ msg: ERROR_MESSAGES.NOT_AUTHENTICATED })
     }
-    // const database = new Local()
 
     try {
       const user = verify(access_token, JWT_SECRET!) as User
-      // const user = await database.findUserById({
-      //   id: '3f206f73-fd12-4c57-8313-6500549404f2'
-      // })
 
       req.user = user
       next()
