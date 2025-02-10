@@ -52,7 +52,6 @@ class LinkCtrl {
 
       const check = await this.database.findLinkbyShort({ short })
 
-      // console.log(`Is there any short with this name? ${check}`)
       if (check) {
         return res.status(400).json({ msg: ERROR_MESSAGES.NAME_UNAVAILABLE })
       }

@@ -206,7 +206,7 @@ class Local {
 
       const {
         rows: [link]
-      } = await client.query({
+      } = await client.query<Link>({
         text: 'SELECT * FROM vw_link WHERE id = $1',
         values: [inserted.id!]
       })
