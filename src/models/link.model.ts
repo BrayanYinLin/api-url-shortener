@@ -9,19 +9,17 @@ const link = z.object({
   created_at: z.string().datetime().optional()
 })
 
+const updateSchema = z.object({
+  id: z.string().uuid().nonempty(),
+  long: z.string().url()
+})
+
 const checkLink = (linkToCheck: Link) => {
   return link.safeParse(linkToCheck)
 }
 
-const checkUpdateLink = (linkToCheck: Link) => {
-  return link
-    .omit({
-      created_at: true
-    })
-    .required({
-      id: true
-    })
-    .safeParse(linkToCheck)
+const checkUpdateLink = (linkToCheck: Required<Pick<Link, 'id' | 'long'>>) => {
+  return updateSchema.safeParse(linkToCheck)
 }
 
 export { link, checkLink, checkUpdateLink }

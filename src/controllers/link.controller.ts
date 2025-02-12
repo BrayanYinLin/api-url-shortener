@@ -71,8 +71,7 @@ class LinkCtrl {
   }
 
   async editLink(req: Request, res: Response) {
-    const database = new Local()
-    const { long, short } = req.body
+    const { long } = req.body
     const { id } = req.params
 
     if (!id) {
@@ -80,21 +79,13 @@ class LinkCtrl {
     }
 
     try {
-      const { data, error } = checkUpdateLink({ id, long, short })
+      const { data, error } = checkUpdateLink({ id, long })
 
       if (error) return res.status(422).json(error)
 
-      const check = await database.findLinkbyShort({ short: data.short })
-
-      // console.log(`Is there any short with this name? ${check}`)
-      if (check) {
-        return res.status(400).json({ msg: ERROR_MESSAGES.NAME_UNAVAILABLE })
-      }
-
-      const editted = await database.editLink({
+      const editted = await this.database.editLink({
         id: data.id,
-        long: data.long,
-        short: data.short
+        long: data.long
       })
 
       return res.json(editted)

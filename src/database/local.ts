@@ -217,7 +217,7 @@ class Local {
     }
   }
 
-  async editLink({ id, long, short }: Link) {
+  async editLink({ id, long }: Required<Pick<Link, 'id' | 'long'>>) {
     const client = await this.pool.connect()
 
     if (!id) {
@@ -226,8 +226,8 @@ class Local {
 
     try {
       await client.query({
-        text: 'UPDATE tb_link SET link_long = COALESCE($1, link_long), link_short = COALESCE($2, link_short)  WHERE link_id = $3',
-        values: [long, short, id]
+        text: 'UPDATE tb_link SET link_long = COALESCE($1, link_long)  WHERE link_id = $2',
+        values: [long, id]
       })
 
       const {
