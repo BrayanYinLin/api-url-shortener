@@ -1,15 +1,15 @@
 import { Pool } from 'pg'
 import { POSTGRES_PASSWORD, POSTGRES_USER } from '../lib/enviroment'
-import { Link, Provider, User } from '../types'
+import { Link, Provider, User, Repository } from '../types'
 import { LinkNotFound, MissingParameter, UserNotFound } from '../lib/errors'
 
-class Local {
+class Local implements Repository {
   static instance: Local | null = null
-  pool!: Pool
+  database!: Pool
 
   constructor() {
     if (!Local.instance) {
-      this.pool = new Pool({
+      this.database = new Pool({
         user: POSTGRES_USER,
         password: POSTGRES_PASSWORD,
         host: 'localhost',
@@ -18,7 +18,7 @@ class Local {
         max: 20
       })
 
-      this.pool.on('error', (err) => {
+      this.database.on('error', (err) => {
         console.error('unexpected error on database', err)
         process.exit(-1)
       })
@@ -29,8 +29,8 @@ class Local {
     return Local.instance
   }
 
-  async findUserById({ id }: Pick<User, 'id'>): Promise<User> {
-    const client = await this.pool.connect()
+  async findUserById({ id }: Required<Pick<User, 'id'>>): Promise<User> {
+    const client = await this.database.connect()
 
     if (!id) {
       throw new MissingParameter('Missing identifier (id)')
@@ -65,7 +65,7 @@ class Local {
   }
 
   async findUserByEmail({ email }: Pick<User, 'email'>): Promise<User | null> {
-    const client = await this.pool.connect()
+    const client = await this.database.connect()
 
     try {
       const {
@@ -102,7 +102,7 @@ class Local {
     avatar,
     email
   }: User): Promise<User> {
-    const client = await this.pool.connect()
+    const client = await this.database.connect()
 
     try {
       const {
@@ -140,8 +140,10 @@ class Local {
     }
   }
 
-  async findEveryLinksByUser({ id }: Pick<User, 'id'>): Promise<Link[]> {
-    const client = await this.pool.connect()
+  async findEveryLinksByUser({
+    id
+  }: Required<Pick<User, 'id'>>): Promise<Link[]> {
+    const client = await this.database.connect()
 
     try {
       const { rows } = await client.query({
@@ -164,7 +166,7 @@ class Local {
   }
 
   async findLinkbyShort({ short }: Pick<Link, 'short'>) {
-    const client = await this.pool.connect()
+    const client = await this.database.connect()
 
     try {
       const {
@@ -189,7 +191,7 @@ class Local {
     { long, short }: Pick<Link, 'long' | 'short'>,
     { id }: Pick<User, 'id'>
   ) {
-    const client = await this.pool.connect()
+    const client = await this.database.connect()
 
     try {
       const {
@@ -218,7 +220,7 @@ class Local {
   }
 
   async editLink({ id, long }: Required<Pick<Link, 'id' | 'long'>>) {
-    const client = await this.pool.connect()
+    const client = await this.database.connect()
 
     if (!id) {
       throw new MissingParameter('Identifier not provided')
@@ -244,7 +246,7 @@ class Local {
   }
 
   async increaseClickByLink({ id }: Required<Pick<Link, 'id'>>) {
-    const client = await this.pool.connect()
+    const client = await this.database.connect()
 
     if (!id) {
       throw new MissingParameter('Identifier not provided')
@@ -270,7 +272,7 @@ class Local {
   }
 
   async deleteLinkById({ id }: Required<Pick<Link, 'id'>>) {
-    const client = await this.pool.connect()
+    const client = await this.database.connect()
 
     try {
       const { rowCount: connections } = await client.query({

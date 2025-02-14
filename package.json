@@ -13,6 +13,7 @@
   "type": "commonjs",
   "description": "API Rest to manage short links",
   "dependencies": {
+    "@supabase/supabase-js": "2.48.1",
     "axios": "1.7.9",
     "cookie-parser": "^1.4.7",
     "cors": "2.8.5",

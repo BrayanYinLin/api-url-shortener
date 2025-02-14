@@ -1,6 +1,8 @@
 import { z } from 'zod'
 import { provider, user } from './models/user.model'
 import { link } from './models/link.model'
+import { Pool } from 'pg'
+import { SupabaseClient } from '@supabase/supabase-js'
 
 type User = z.infer<typeof user>
 type UserJWT = Pick<User, 'id' | 'email' | 'name' | 'created_at'>
@@ -16,12 +18,16 @@ declare global {
   }
 }
 
-export type GoogleUser = {
-  id: string
-  email: string
-  verified_email: boolean
-  name: string
-  given_name: string
-  family_name: string
-  picture: string
+export interface Repository {
+  database: Pool | SupabaseClient
+  findUserById({ id }: Required<Pick<User, 'id'>>): Promise<User>
+  findUserByEmail({ email }: Pick<User, 'email'>): Promise<User | null>
+  createUser({
+    provider: { provider_name },
+    name,
+    avatar,
+    email
+  }: User): Promise<User>
+  findEveryLinksByUser({ id }: Required<Pick<User, 'id'>>): Promise<Link[]>
+  findLinkbyShort({ short }: Pick<Link, 'short'>): Promise<Link | null>
 }
