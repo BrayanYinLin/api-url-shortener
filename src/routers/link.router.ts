@@ -1,11 +1,9 @@
 import { Router } from 'express'
 import { LinkCtrl } from '../controllers/link.controller'
 import { decryptUser } from '../middlewares/decrypt-user'
-import { Supabase } from '../database/supabase'
-// import { Local } from '../database/local'
+import { getRepository } from '../lib/utils'
 
-// const database = new Local()
-const database = new Supabase()
+const database = getRepository()
 const routerLink = Router()
 const controller = new LinkCtrl(database)
 

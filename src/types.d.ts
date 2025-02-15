@@ -1,8 +1,8 @@
 import { z } from 'zod'
 import { provider, user } from './models/user.model'
 import { link } from './models/link.model'
-import { Pool } from 'pg'
-import { SupabaseClient } from '@supabase/supabase-js'
+// import { Pool } from 'pg'
+// import { SupabaseClient } from '@supabase/supabase-js'
 import { Database } from './database'
 
 type User = z.infer<typeof user>
@@ -23,8 +23,10 @@ export type EliminationType = {
   deleted: boolean
 }
 
-export interface Repository {
-  database: Pool | SupabaseClient
+type SingletonInstance<T> = T | null
+
+export interface Repository<T> {
+  database: T
   findUserById({ id }: Required<Pick<User, 'id'>>): Promise<User>
   findUserByEmail({ email }: Pick<User, 'email'>): Promise<User | null>
   createUser({

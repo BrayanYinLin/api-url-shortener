@@ -5,6 +5,8 @@ import { CookieOptions } from 'express'
 import { MILLISECONDS_TIMES } from './definitions'
 import { Local } from '../database/local'
 import { Supabase } from '../database/supabase'
+import { SupabaseClient } from '@supabase/supabase-js'
+import { Pool } from 'pg'
 
 export const parseCookie = ({
   cookiesSet,
@@ -64,10 +66,10 @@ export const setCookiesSettings = (): CookieSettings => {
   return { access_settings, refresh_settings }
 }
 
-export const getRepository = (): Repository => {
-  if (ENVIRONMENT === 'DEVELOPMENT') {
-    return new Local()
+export const getRepository = (): Repository<Pool | SupabaseClient> => {
+  if (ENVIRONMENT === 'PRODUCTION') {
+    return new Supabase()
   }
 
-  return new Supabase()
+  return new Local()
 }

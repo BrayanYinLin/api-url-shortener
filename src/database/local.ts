@@ -3,7 +3,7 @@ import { POSTGRES_PASSWORD, POSTGRES_USER } from '../lib/enviroment'
 import { Link, Provider, User, Repository } from '../types'
 import { NotFoundError, OperationError } from '../lib/errors'
 
-class Local implements Repository {
+class Local implements Repository<Pool> {
   static instance: Local | null = null
   database!: Pool
 

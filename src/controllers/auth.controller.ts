@@ -13,16 +13,16 @@ import {
   ErrorGettingGithubUser,
   ErrorGettingTokens
 } from '../lib/errors'
-import { encryptUser, setCookiesSettings } from '../lib/utils'
+import { encryptUser, getRepository, setCookiesSettings } from '../lib/utils'
 import { JsonWebTokenError, verify } from 'jsonwebtoken'
-import { Repository, User } from '../types'
+import { User } from '../types'
 import { ERROR_MESSAGES, PROVIDERS } from '../lib/definitions'
 import axios from 'axios'
 
 class AuthCtrl {
-  database!: Repository
+  database!: ReturnType<typeof getRepository>
 
-  constructor(database: Repository) {
+  constructor(database: ReturnType<typeof getRepository>) {
     this.database = database
   }
 

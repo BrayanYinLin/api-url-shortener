@@ -16,7 +16,7 @@ import {
 import { Database } from '../database'
 import { NotFoundError, OperationError } from '../lib/errors'
 
-class Supabase implements Repository {
+class Supabase implements Repository<SupabaseClient> {
   static instance: Supabase
   database!: SupabaseClient
 

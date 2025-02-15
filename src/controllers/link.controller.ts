@@ -1,15 +1,16 @@
 import { Request, Response } from 'express'
 import { JWT_SECRET } from '../lib/enviroment'
 import { JsonWebTokenError, verify } from 'jsonwebtoken'
-import { Repository, User } from '../types'
+import { User } from '../types'
 import { ERROR_MESSAGES } from '../lib/definitions'
 import { checkLink, checkUpdateLink } from '../models/link.model'
 import { MissingParameterError } from '../lib/errors'
+import { getRepository } from '../lib/utils'
 
 class LinkCtrl {
-  database!: Repository
+  database!: ReturnType<typeof getRepository>
 
-  constructor(database: Repository) {
+  constructor(database: ReturnType<typeof getRepository>) {
     this.database = database
   }
 
