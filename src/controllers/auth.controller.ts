@@ -9,21 +9,20 @@ import {
 } from '../lib/enviroment'
 import { getGithubAccessToken, getGithubUser } from '../lib/services'
 import {
-  EmailNotAvailable,
+  AvailabilityError,
   ErrorGettingGithubUser,
   ErrorGettingTokens
 } from '../lib/errors'
 import { encryptUser, setCookiesSettings } from '../lib/utils'
-import { Local } from '../database/local'
 import { JsonWebTokenError, verify } from 'jsonwebtoken'
-import { User } from '../types'
+import { Repository, User } from '../types'
 import { ERROR_MESSAGES, PROVIDERS } from '../lib/definitions'
 import axios from 'axios'
 
 class AuthCtrl {
-  database!: Local
+  database!: Repository
 
-  constructor(database: Local) {
+  constructor(database: Repository) {
     this.database = database
   }
 
@@ -44,12 +43,7 @@ class AuthCtrl {
 
       const user = await this.database.findUserById({ id: recovered.id! })
 
-      // const { access, refresh } = encryptUser({ payload: user })
-      // const { access_settings, refresh_settings } = setCookiesSettings()
-
       return res.json(user)
-      // .cookie('access_token', access, access_settings)
-      // .cookie('refresh_token', refresh, refresh_settings)
     } catch (e) {
       if (e instanceof JsonWebTokenError) {
         return res.status(401).json({ msg: e.message })
@@ -71,7 +65,7 @@ class AuthCtrl {
     try {
       const recovered = verify(refresh_token, JWT_SECRET!) as Pick<User, 'id'>
 
-      const user = await this.database.findUserById(recovered)
+      const user = await this.database.findUserById({ id: recovered.id! })
 
       const { access, refresh } = encryptUser({ payload: user })
       const { access_settings, refresh_settings } = setCookiesSettings()
@@ -121,7 +115,7 @@ class AuthCtrl {
       })
 
       if (checkUser && checkUser.provider.provider_name !== PROVIDERS.GITHUB) {
-        throw new EmailNotAvailable('This email is used by another provider')
+        throw new AvailabilityError('This email is used by another provider')
       }
 
       const newUser =
@@ -138,7 +132,7 @@ class AuthCtrl {
         return res.status(401).json({ msg: e.message })
       } else if (e instanceof ErrorGettingGithubUser) {
         return res.status(401).json({ msg: e.message })
-      } else if (e instanceof EmailNotAvailable) {
+      } else if (e instanceof AvailabilityError) {
         return res.status(400).json({ msg: e.message })
       } else {
         console.error(e)
@@ -197,7 +191,7 @@ class AuthCtrl {
       })
 
       if (checkUser && checkUser.provider.provider_name !== PROVIDERS.GOOGLE) {
-        throw new EmailNotAvailable('This email is used by another provider')
+        throw new AvailabilityError('This email is used by another provider')
       }
 
       const newUser =

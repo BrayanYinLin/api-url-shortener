@@ -1,7 +1,7 @@
 import { Pool } from 'pg'
 import { POSTGRES_PASSWORD, POSTGRES_USER } from '../lib/enviroment'
 import { Link, Provider, User, Repository } from '../types'
-import { LinkNotFound, MissingParameter, UserNotFound } from '../lib/errors'
+import { NotFoundError, OperationError } from '../lib/errors'
 
 class Local implements Repository {
   static instance: Local | null = null
@@ -32,10 +32,6 @@ class Local implements Repository {
   async findUserById({ id }: Required<Pick<User, 'id'>>): Promise<User> {
     const client = await this.database.connect()
 
-    if (!id) {
-      throw new MissingParameter('Missing identifier (id)')
-    }
-
     try {
       const {
         rows: [user]
@@ -45,7 +41,7 @@ class Local implements Repository {
       })
 
       if (!user) {
-        throw new UserNotFound('User not found by id')
+        throw new NotFoundError('User not found by identifier')
       }
 
       return {
@@ -222,10 +218,6 @@ class Local implements Repository {
   async editLink({ id, long }: Required<Pick<Link, 'id' | 'long'>>) {
     const client = await this.database.connect()
 
-    if (!id) {
-      throw new MissingParameter('Identifier not provided')
-    }
-
     try {
       await client.query({
         text: 'UPDATE tb_link SET link_long = COALESCE($1, link_long)  WHERE link_id = $2',
@@ -247,10 +239,6 @@ class Local implements Repository {
 
   async increaseClickByLink({ id }: Required<Pick<Link, 'id'>>) {
     const client = await this.database.connect()
-
-    if (!id) {
-      throw new MissingParameter('Identifier not provided')
-    }
 
     try {
       await client.query({
@@ -281,7 +269,9 @@ class Local implements Repository {
       })
 
       if (!connections) {
-        throw new LinkNotFound('Link not found in relation with user')
+        throw new NotFoundError(
+          'Relation between links and user was not deleted'
+        )
       }
 
       const { rowCount: deletedRows } = await client.query({
@@ -290,7 +280,7 @@ class Local implements Repository {
       })
 
       if (!deletedRows) {
-        throw new LinkNotFound('Link was not found')
+        throw new OperationError('Link was not deleted')
       }
 
       return { deleted: Boolean(deletedRows) }

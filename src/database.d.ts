@@ -260,42 +260,6 @@ export type Database = {
   }
 }
 
-export type SupabasePublic = Database[Extract<keyof Database, 'public'>]
-export type SupabaseViews = SupabasePublic[Extract<
-  keyof SupabasePublic,
-  'Views'
->]
-export type SupabaseTables = SupabasePublic[Extract<
-  keyof SupabasePublic,
-  'Tables'
->]
-export type SupabaseViewUser = Required<{
-  [K in keyof Pick<SupabaseViews, 'vw_user'>['vw_user']['Row']]: NonNullable<
-    Pick<SupabaseViews, 'vw_user'>['vw_user']['Row'][K]
-  >
-}>
-export type SupabaseProvider = Required<{
-  [K in keyof Pick<
-    SupabaseTables,
-    'tb_provider'
-  >['tb_provider']['Row']]: NonNullable<
-    Pick<SupabaseTables, 'tb_provider'>['tb_provider']['Row'][K]
-  >
-}>
-export type SupabaseViewLinkPerUser = Required<{
-  [K in keyof Pick<
-    SupabaseViews,
-    'vw_link_per_user'
-  >['vw_link_per_user']['Row']]: NonNullable<
-    Pick<SupabaseViews, 'vw_link_per_user'>['vw_link_per_user']['Row'][K]
-  >
-}>
-export type SupabaseViewLink = Required<{
-  [K in keyof Pick<SupabaseViews, 'vw_link'>['vw_link']['Row']]: NonNullable<
-    Pick<SupabaseViews, 'vw_link'>['vw_link']['Row'][K]
-  >
-}>
-
 type PublicSchema = Database[Extract<keyof Database, 'public'>]
 
 export type Tables<

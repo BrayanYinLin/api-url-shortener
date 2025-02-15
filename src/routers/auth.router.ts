@@ -1,8 +1,8 @@
 import { Router } from 'express'
 import { AuthCtrl } from '../controllers/auth.controller'
-import { Local } from '../database/local'
+import { Supabase } from '../database/supabase'
 
-const database = new Local()
+const database = new Supabase()
 const routerAuth = Router()
 const controller = new AuthCtrl(database)
 

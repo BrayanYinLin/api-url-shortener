@@ -1,8 +1,10 @@
-import { User } from '../types'
+import { Repository, User } from '../types'
 import { sign } from 'jsonwebtoken'
 import { ENVIRONMENT, JWT_SECRET } from './enviroment'
 import { CookieOptions } from 'express'
 import { MILLISECONDS_TIMES } from './definitions'
+import { Local } from '../database/local'
+import { Supabase } from '../database/supabase'
 
 export const parseCookie = ({
   cookiesSet,
@@ -60,4 +62,12 @@ export const setCookiesSettings = (): CookieSettings => {
   }
 
   return { access_settings, refresh_settings }
+}
+
+export const getRepository = (): Repository => {
+  if (ENVIRONMENT === 'DEVELOPMENT') {
+    return new Local()
+  }
+
+  return new Supabase()
 }

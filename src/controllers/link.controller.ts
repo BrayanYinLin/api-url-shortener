@@ -1,16 +1,15 @@
 import { Request, Response } from 'express'
-import { Local } from '../database/local'
 import { JWT_SECRET } from '../lib/enviroment'
 import { JsonWebTokenError, verify } from 'jsonwebtoken'
-import { User } from '../types'
+import { Repository, User } from '../types'
 import { ERROR_MESSAGES } from '../lib/definitions'
 import { checkLink, checkUpdateLink } from '../models/link.model'
-import { MissingParameter } from '../lib/errors'
+import { MissingParameterError } from '../lib/errors'
 
 class LinkCtrl {
-  database!: Local
+  database!: Repository
 
-  constructor(database: Local) {
+  constructor(database: Repository) {
     this.database = database
   }
 
@@ -58,7 +57,7 @@ class LinkCtrl {
 
       const link = await this.database.createLink(
         { long: data.long, short: data.short },
-        { id }
+        { id: id! }
       )
 
       return res.status(201).json(link)
@@ -118,7 +117,7 @@ class LinkCtrl {
         created_at: link.created_at
       })
     } catch (e) {
-      if (e instanceof MissingParameter) {
+      if (e instanceof MissingParameterError) {
         return res.status(400).json({ msg: e.message })
       } else {
         console.error(e)

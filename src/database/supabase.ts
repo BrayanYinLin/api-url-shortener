@@ -1,14 +1,20 @@
 import { createClient, SupabaseClient } from '@supabase/supabase-js'
 import { SUPABASE_KEY, SUPABASE_PROJECT_URL } from '../lib/enviroment'
-import { Link, Repository, User } from '../types'
 import {
-  Database,
+  EliminationType,
+  Link,
+  Repository,
+  SupabaseTableLink,
+  User
+} from '../types'
+import {
   SupabaseProvider,
   SupabaseViewLink,
   SupabaseViewLinkPerUser,
   SupabaseViewUser
-} from '../database'
-import { DataNotFound, LinkNotFound, UserNotFound } from '../lib/errors'
+} from '../types'
+import { Database } from '../database'
+import { NotFoundError, OperationError } from '../lib/errors'
 
 class Supabase implements Repository {
   static instance: Supabase
@@ -35,10 +41,10 @@ class Supabase implements Repository {
       .returns<SupabaseViewUser[]>()
 
     if (!data) {
-      throw new UserNotFound('User not found by identifier')
+      throw new NotFoundError('User not found by identifier')
     }
 
-    const user = data[0]
+    const [user] = data
 
     return {
       id: String(user.id),
@@ -61,7 +67,7 @@ class Supabase implements Repository {
       .returns<SupabaseViewUser[]>()
 
     if (!data) {
-      throw new UserNotFound('User not found by identifier')
+      throw new NotFoundError('User not found by identifier')
     }
 
     const user = data[0]
@@ -92,7 +98,7 @@ class Supabase implements Repository {
       .returns<SupabaseProvider[]>()
 
     if (!providers) {
-      throw new DataNotFound('Provider was not found')
+      throw new NotFoundError('Provider was not found')
     }
 
     const { provider_id } = providers[0]
@@ -108,7 +114,7 @@ class Supabase implements Repository {
       .select()
 
     if (!newUser) {
-      throw new UserNotFound('User was not created')
+      throw new OperationError('User was not created')
     }
 
     const { data } = await this.database
@@ -118,7 +124,7 @@ class Supabase implements Repository {
       .returns<SupabaseViewUser[]>()
 
     if (!data) {
-      throw new UserNotFound('User not found by identifier')
+      throw new OperationError('User not found by identifier')
     }
 
     const user = data[0]
@@ -146,7 +152,7 @@ class Supabase implements Repository {
       .returns<SupabaseViewLinkPerUser[]>()
 
     if (!data) {
-      throw new DataNotFound('Links per user were not found')
+      throw new NotFoundError('Links per user were not found')
     }
 
     return data.map(
@@ -168,12 +174,127 @@ class Supabase implements Repository {
       .returns<SupabaseViewLink[]>()
 
     if (!data) {
-      throw new LinkNotFound('Link was not found')
+      throw new NotFoundError('Link was not found')
     }
 
     const link = data[0]
 
     return link
+  }
+
+  async createLink(
+    { long, short }: Pick<Link, 'long' | 'short'>,
+    { id }: Required<Pick<User, 'id'>>
+  ): Promise<Link> {
+    const { data: links } = await this.database
+      .from('tb_link')
+      .insert({ link_long: long, link_short: short })
+      .select()
+      .returns<SupabaseTableLink[]>()
+
+    if (!links) {
+      throw new OperationError('Link was not created')
+    }
+
+    const { link_id } = links[0]
+
+    await this.database
+      .from('tb_link_per_user')
+      .insert({ link_id: link_id, user_id: id })
+
+    const { data } = await this.database
+      .from('vw_link')
+      .select()
+      .eq('id', link_id)
+      .returns<SupabaseViewLink[]>()
+
+    if (!data) {
+      throw new NotFoundError('New link was not found')
+    }
+
+    const link = data[0]
+
+    return link
+  }
+
+  async editLink({
+    id,
+    long
+  }: Required<Pick<Link, 'id' | 'long'>>): Promise<Link> {
+    const { status } = await this.database
+      .from('tb_link')
+      .update({ link_long: long })
+      .eq('link_id', id)
+
+    if (status !== 204) {
+      throw new OperationError('Link was not updated')
+    }
+
+    const { data } = await this.database
+      .from('vw_link')
+      .select()
+      .eq('id', id)
+      .limit(1)
+      .returns<SupabaseViewLink[]>()
+
+    if (!data) {
+      throw new NotFoundError('Link was not found')
+    }
+
+    const [recovered] = data
+
+    return {
+      id: recovered.id,
+      long: recovered.long,
+      short: recovered.short,
+      clicks: recovered.clicks,
+      created_at: recovered.created_at
+    }
+  }
+
+  async increaseClickByLink({ id }: Required<Pick<Link, 'id'>>): Promise<void> {
+    const { data: arrLinks } = await this.database
+      .from('tb_link')
+      .select()
+      .limit(1)
+      .returns<SupabaseTableLink[]>()
+
+    if (!arrLinks) {
+      throw new NotFoundError('Link was not found')
+    }
+
+    const [linkRecovered] = arrLinks
+
+    await this.database
+      .from('tb_link')
+      .update({ link_clicks: linkRecovered.link_clicks + 1 })
+      .eq('link_id', id)
+  }
+
+  async deleteLinkById({
+    id
+  }: Required<Pick<Link, 'id'>>): Promise<EliminationType> {
+    const { status } = await this.database
+      .from('tb_link_per_user')
+      .delete()
+      .eq('link_id', id)
+
+    if (status !== 204) {
+      throw new OperationError(
+        'Relation between links and user was not deleted'
+      )
+    }
+
+    const { status: confirmed } = await this.database
+      .from('tb_link')
+      .delete()
+      .eq('link_id', id)
+
+    if (status !== 204) {
+      throw new OperationError('Link was not deleted')
+    }
+
+    return { deleted: Boolean(confirmed) }
   }
 }
 
