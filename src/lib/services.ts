@@ -2,8 +2,8 @@ import { User } from '../types'
 import { PROVIDERS } from './definitions'
 import {
   ErrorGettingGithubUser,
-  ErrorGettingTokens,
-  ErrorMissingEmail
+  ErrorMissingEmail,
+  TokenNotFound
 } from './errors'
 
 export const getGithubAccessToken = async ({
@@ -18,9 +18,7 @@ export const getGithubAccessToken = async ({
   })
 
   if (!response.ok) {
-    throw new ErrorGettingTokens(
-      'Error trying to get access tokens, check params.'
-    )
+    throw new TokenNotFound('Error trying to get access tokens, check params.')
   }
 
   const { access_token } = await response.json()

@@ -67,7 +67,7 @@ class Supabase implements Repository<SupabaseClient> {
       .returns<SupabaseViewUser[]>()
 
     if (!data) {
-      throw new NotFoundError('User not found by identifier')
+      return null
     }
 
     const user = data[0]

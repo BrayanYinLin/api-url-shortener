@@ -11,7 +11,9 @@ import { getGithubAccessToken, getGithubUser } from '../lib/services'
 import {
   AvailabilityError,
   ErrorGettingGithubUser,
-  ErrorGettingTokens
+  NotFoundError,
+  OperationError,
+  TokenNotFound
 } from '../lib/errors'
 import { encryptUser, getRepository, setCookiesSettings } from '../lib/utils'
 import { JsonWebTokenError, verify } from 'jsonwebtoken'
@@ -47,6 +49,8 @@ class AuthCtrl {
     } catch (e) {
       if (e instanceof JsonWebTokenError) {
         return res.status(401).json({ msg: e.message })
+      } else if (e instanceof NotFoundError) {
+        return res.status(404).json({ msg: e.message })
       } else {
         console.error(e)
         return res.json({ msg: 'Unexpected error' })
@@ -77,6 +81,8 @@ class AuthCtrl {
     } catch (e) {
       if (e instanceof JsonWebTokenError) {
         return res.status(401).json({ msg: e.message })
+      } else if (e instanceof NotFoundError) {
+        return res.status(404).json({ msg: e.message })
       } else {
         console.error(e)
         return res.json({ msg: 'Unexpected error' })
@@ -128,15 +134,19 @@ class AuthCtrl {
         .cookie('refresh_token', refresh, refresh_settings)
         .json(newUser)
     } catch (e) {
-      if (e instanceof ErrorGettingTokens) {
+      if (e instanceof TokenNotFound) {
         return res.status(401).json({ msg: e.message })
       } else if (e instanceof ErrorGettingGithubUser) {
         return res.status(401).json({ msg: e.message })
+      } else if (e instanceof NotFoundError) {
+        return res.status(404).json({ msg: e.message })
+      } else if (e instanceof OperationError) {
+        return res.status(409).json({ msg: e.message })
       } else if (e instanceof AvailabilityError) {
         return res.status(400).json({ msg: e.message })
       } else {
         console.error(e)
-        return res.status(500).send('Error during authentication')
+        return res.status(400).json({ msg: ERROR_MESSAGES.UNEXPECTED })
       }
     }
   }
@@ -211,8 +221,16 @@ class AuthCtrl {
         .cookie('refresh_token', refresh, refresh_settings)
         .json(newUser)
     } catch (e) {
-      console.error(e)
-      return res.status(400).json({ msg: ERROR_MESSAGES.UNEXPECTED })
+      if (e instanceof NotFoundError) {
+        return res.status(404).json({ msg: e.message })
+      } else if (e instanceof OperationError) {
+        return res.status(409).json({ msg: e.message })
+      } else if (e instanceof AvailabilityError) {
+        return res.status(400).json({ msg: e.message })
+      } else {
+        console.error(e)
+        return res.status(400).json({ msg: ERROR_MESSAGES.UNEXPECTED })
+      }
     }
   }
 }

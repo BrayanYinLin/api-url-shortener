@@ -49,6 +49,7 @@ export const ErrorMissingEmail = createError({
 export const MissingParameterError = createError({
   name: 'MissingParameterError'
 })
+export const TokenNotFound = createError({ name: 'TokenNotFound' })
 export const NotFoundError = createError({ name: 'NotFoundError' })
 export const InternalServerError = createError({ name: 'InternalServerError' })
 export const OperationError = createError({ name: 'OperationError' })
