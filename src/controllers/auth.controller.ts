@@ -207,14 +207,17 @@ class AuthCtrl {
         throw new AvailabilityError('This email is used by another provider')
       }
 
-      const newUser =
-        checkUser ??
-        (await this.database.createUser({
+      let newUser: User
+      if (checkUser === null || !checkUser) {
+        newUser = await this.database.createUser({
           email: user.email,
           name: user.name,
           avatar: user.picture,
           provider: { provider_name: PROVIDERS.GOOGLE }
-        }))
+        })
+      } else {
+        newUser = checkUser
+      }
       const { access, refresh } = encryptUser({ payload: newUser })
       const { access_settings, refresh_settings } = setCookiesSettings()
 
@@ -229,7 +232,7 @@ class AuthCtrl {
       } else if (e instanceof OperationError) {
         return res.status(409).json({ msg: e.message })
       } else if (e instanceof AvailabilityError) {
-        return res.status(400).json({ msg: e.message })
+        return res.status(403).json({ msg: e.message })
       } else {
         console.error(e)
         return res.status(400).json({ msg: ERROR_MESSAGES.UNEXPECTED })

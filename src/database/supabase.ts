@@ -5,6 +5,7 @@ import {
   Link,
   Repository,
   SupabaseTableLink,
+  SupabaseTableUsers,
   User
 } from '../types'
 import {
@@ -112,8 +113,10 @@ class Supabase implements Repository<SupabaseClient> {
         provider_id: provider_id
       })
       .select()
+      .returns<SupabaseTableUsers[]>()
 
     if (!newUser) {
+      console.log(newUser)
       throw new OperationError('User was not created')
     }
 

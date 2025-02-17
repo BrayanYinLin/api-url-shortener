@@ -93,3 +93,9 @@ export type SupabaseTableLink = Required<{
     Pick<SupabaseTables, 'tb_link'>['tb_link']['Row'][K]
   >
 }>
+
+export type SupabaseTableUsers = Required<{
+  [K in keyof Pick<SupabaseTables, 'tb_users'>['tb_users']['Row']]: NonNullable<
+    Pick<SupabaseTables, 'tb_users'>['tb_users']['Row'][K]
+  >
+}>
