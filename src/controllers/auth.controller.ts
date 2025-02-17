@@ -90,7 +90,8 @@ class AuthCtrl {
     }
   }
 
-  async logout(_: Request, res: Response) {
+  async logout(req: Request, res: Response) {
+    console.log(req.cookies)
     return res
       .clearCookie('access_token', { path: '/' })
       .clearCookie('refresh_token', { path: '/' })

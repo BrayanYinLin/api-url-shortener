@@ -53,14 +53,16 @@ export const setCookiesSettings = (): CookieSettings => {
     httpOnly: ENVIRONMENT === 'PRODUCTION',
     maxAge: TWO_HOURS,
     secure: ENVIRONMENT === 'PRODUCTION',
-    sameSite: 'none'
+    sameSite: 'none',
+    path: '/'
   }
 
   const refresh_settings: CookieOptions = {
     httpOnly: ENVIRONMENT === 'PRODUCTION',
     maxAge: FITHTEEN_DAYS_SECONDS,
     secure: ENVIRONMENT === 'PRODUCTION',
-    sameSite: 'none'
+    sameSite: 'none',
+    path: '/'
   }
 
   return { access_settings, refresh_settings }
