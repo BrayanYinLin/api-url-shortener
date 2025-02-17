@@ -41,7 +41,7 @@ class Supabase implements Repository<SupabaseClient> {
       .eq('id', id)
       .returns<SupabaseViewUser[]>()
 
-    if (!data) {
+    if (!data || data.length === 0) {
       throw new NotFoundError('User not found by identifier')
     }
 
@@ -67,14 +67,12 @@ class Supabase implements Repository<SupabaseClient> {
       .eq('email', email)
       .returns<SupabaseViewUser[]>()
 
-    if (!data) {
+    if (!data || data.length === 0) {
       return null
     }
 
     const user = data[0]
 
-    console.log(user)
-    console.info(user)
     return {
       id: String(user.id),
       name: user.name,
@@ -100,7 +98,7 @@ class Supabase implements Repository<SupabaseClient> {
       .eq('provider_name', provider_name)
       .returns<SupabaseProvider[]>()
 
-    if (!providers) {
+    if (!providers || providers.length === 0) {
       throw new NotFoundError('Provider was not found')
     }
 
@@ -156,7 +154,7 @@ class Supabase implements Repository<SupabaseClient> {
       .eq('user_id', id)
       .returns<SupabaseViewLinkPerUser[]>()
 
-    if (!data) {
+    if (!data || data.length === 0) {
       throw new NotFoundError('Links per user were not found')
     }
 
@@ -178,7 +176,7 @@ class Supabase implements Repository<SupabaseClient> {
       .eq('short', short)
       .returns<SupabaseViewLink[]>()
 
-    if (!data) {
+    if (!data || data.length === 0) {
       throw new NotFoundError('Link was not found')
     }
 
@@ -197,7 +195,7 @@ class Supabase implements Repository<SupabaseClient> {
       .select()
       .returns<SupabaseTableLink[]>()
 
-    if (!links) {
+    if (!links || links.length == 0) {
       throw new OperationError('Link was not created')
     }
 
@@ -264,7 +262,7 @@ class Supabase implements Repository<SupabaseClient> {
       .limit(1)
       .returns<SupabaseTableLink[]>()
 
-    if (!arrLinks) {
+    if (!arrLinks || arrLinks.length === 0) {
       throw new NotFoundError('Link was not found')
     }
 
