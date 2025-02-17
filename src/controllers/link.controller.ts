@@ -4,7 +4,11 @@ import { JsonWebTokenError, verify } from 'jsonwebtoken'
 import { User } from '../types'
 import { ERROR_MESSAGES } from '../lib/definitions'
 import { checkLink, checkUpdateLink } from '../models/link.model'
-import { MissingParameterError } from '../lib/errors'
+import {
+  AvailabilityError,
+  MissingParameterError,
+  NotFoundError
+} from '../lib/errors'
 import { getRepository } from '../lib/utils'
 
 class LinkCtrl {
@@ -53,7 +57,7 @@ class LinkCtrl {
       const check = await this.database.findLinkbyShort({ short })
 
       if (check) {
-        return res.status(400).json({ msg: ERROR_MESSAGES.NAME_UNAVAILABLE })
+        throw new AvailabilityError('This link already exists')
       }
 
       const link = await this.database.createLink(
@@ -63,10 +67,14 @@ class LinkCtrl {
 
       return res.status(201).json(link)
     } catch (e) {
-      console.error(e)
-      return res.json({
-        msg: `${ERROR_MESSAGES.UNEXPECTED} At links by user`
-      })
+      if (e instanceof AvailabilityError) {
+        return res.status(400).json({ msg: e.message })
+      } else {
+        console.error(e)
+        return res.json({
+          msg: `${ERROR_MESSAGES.UNEXPECTED} At links by user`
+        })
+      }
     }
   }
 
@@ -105,7 +113,7 @@ class LinkCtrl {
       const link = await this.database.findLinkbyShort({ short: String(short) })
 
       if (!link) {
-        return res.status(404).json({ msg: ERROR_MESSAGES.LINK_NOT_FOUND })
+        throw new NotFoundError(ERROR_MESSAGES.LINK_NOT_FOUND)
       }
 
       await this.database.increaseClickByLink({ id: link.id! })
@@ -120,6 +128,8 @@ class LinkCtrl {
     } catch (e) {
       if (e instanceof MissingParameterError) {
         return res.status(400).json({ msg: e.message })
+      } else if (e instanceof NotFoundError) {
+        return res.status(404).json({ msg: e.message })
       } else {
         console.error(e)
         return res

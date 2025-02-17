@@ -177,7 +177,7 @@ class Supabase implements Repository<SupabaseClient> {
       .returns<SupabaseViewLink[]>()
 
     if (!data || data.length === 0) {
-      throw new NotFoundError('Link was not found')
+      return null
     }
 
     const link = data[0]
@@ -211,7 +211,7 @@ class Supabase implements Repository<SupabaseClient> {
       .eq('id', link_id)
       .returns<SupabaseViewLink[]>()
 
-    if (!data) {
+    if (!data || data.length === 0) {
       throw new NotFoundError('New link was not found')
     }
 
