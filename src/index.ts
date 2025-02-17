@@ -10,11 +10,7 @@ const app = express()
 const port = Number(PORT) || 5373
 
 app.use(corsOrigins())
-app.use(
-  morgan(
-    ':method - :url - :status - :response-time ms - origin: :origin - body: :body'
-  )
-)
+app.use(morgan(':method - :url - :status - :response-time ms'))
 app.options('*', preflight())
 app.use(express.json())
 app.use(cookieParser())

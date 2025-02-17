@@ -92,8 +92,8 @@ class AuthCtrl {
 
   async logout(_: Request, res: Response) {
     return res
-      .clearCookie('access_token')
-      .clearCookie('refresh_token')
+      .clearCookie('access_token', { path: '/' })
+      .clearCookie('refresh_token', { path: '/' })
       .json({ msg: 'Log out succesfully' })
   }
 

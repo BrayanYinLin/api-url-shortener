@@ -18,6 +18,6 @@ routerAuth.get('/google/callback', controller.callbackGoogle.bind(controller))
 
 routerAuth.get('/refresh', controller.refresh.bind(controller))
 
-routerAuth.get('/logout', controller.logout.bind(controller))
+routerAuth.post('/logout', controller.logout.bind(controller))
 
 export { routerAuth }
