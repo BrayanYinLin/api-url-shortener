@@ -73,6 +73,8 @@ class Supabase implements Repository<SupabaseClient> {
 
     const user = data[0]
 
+    console.log(user)
+    console.info(user)
     return {
       id: String(user.id),
       name: user.name,
