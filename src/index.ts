@@ -4,11 +4,17 @@ import { routerAuth as authRouter } from './routers/auth.router'
 import { routerLink as linkRouter } from './routers/link.router'
 import cookieParser from 'cookie-parser'
 import { corsOrigins, preflight } from './middlewares/cors-origins'
+import morgan from 'morgan'
 
 const app = express()
 const port = Number(PORT) || 5373
 
 app.use(corsOrigins())
+app.use(
+  morgan(
+    ':method - :url - :status - :response-time ms - origin: :origin - body: :body'
+  )
+)
 app.options('*', preflight())
 app.use(express.json())
 app.use(cookieParser())
