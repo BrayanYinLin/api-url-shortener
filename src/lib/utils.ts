@@ -68,6 +68,21 @@ export const setCookiesSettings = (): CookieSettings => {
   return { access_settings, refresh_settings }
 }
 
+export const getClearCookiesSettings = () => {
+  const settings: CookieOptions = {
+    httpOnly: ENVIRONMENT === 'PRODUCTION',
+    secure: ENVIRONMENT === 'PRODUCTION',
+    domain:
+      ENVIRONMENT === 'PRODUCTION'
+        ? 'cool-shortener-production.up.railway.app'
+        : 'localhost',
+    sameSite: 'none',
+    path: '/'
+  }
+
+  return { settings }
+}
+
 export const getRepository = (): Repository<Pool | SupabaseClient> => {
   if (ENVIRONMENT === 'PRODUCTION') {
     return new Supabase()

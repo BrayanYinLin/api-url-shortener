@@ -15,7 +15,12 @@ import {
   OperationError,
   TokenNotFound
 } from '../lib/errors'
-import { encryptUser, getRepository, setCookiesSettings } from '../lib/utils'
+import {
+  encryptUser,
+  getClearCookiesSettings,
+  getRepository,
+  setCookiesSettings
+} from '../lib/utils'
 import { JsonWebTokenError, verify } from 'jsonwebtoken'
 import { User } from '../types'
 import { ERROR_MESSAGES, PROVIDERS } from '../lib/definitions'
@@ -71,13 +76,10 @@ class AuthCtrl {
 
       const user = await this.database.findUserById({ id: recovered.id! })
 
-      const { access, refresh } = encryptUser({ payload: user })
-      const { access_settings, refresh_settings } = setCookiesSettings()
+      const { access } = encryptUser({ payload: user })
+      const { access_settings } = setCookiesSettings()
 
-      return res
-        .cookie('access_token', access, access_settings)
-        .cookie('refresh_token', refresh, refresh_settings)
-        .json(user)
+      return res.cookie('access_token', access, access_settings).json(user)
     } catch (e) {
       if (e instanceof JsonWebTokenError) {
         return res.status(401).json({ msg: e.message })
@@ -90,11 +92,11 @@ class AuthCtrl {
     }
   }
 
-  async logout(req: Request, res: Response) {
-    console.log(req.cookies)
+  async logout(_: Request, res: Response) {
+    const { settings } = getClearCookiesSettings()
     return res
-      .clearCookie('access_token', { path: '/' })
-      .clearCookie('refresh_token', { path: '/' })
+      .clearCookie('access_token', settings)
+      .clearCookie('refresh_token', settings)
       .json({ msg: 'Log out succesfully' })
   }
 

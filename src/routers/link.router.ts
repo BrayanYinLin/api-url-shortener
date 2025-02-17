@@ -8,7 +8,11 @@ const routerLink = Router()
 const controller = new LinkCtrl(database)
 
 routerLink.get('/', controller.findLinkByShort.bind(controller))
-routerLink.get('/user', controller.findEveryLinksByUser.bind(controller))
+routerLink.get(
+  '/user',
+  decryptUser(),
+  controller.findEveryLinksByUser.bind(controller)
+)
 routerLink.post('/', decryptUser(), controller.createLink.bind(controller))
 routerLink.patch('/:id', decryptUser(), controller.editLink.bind(controller))
 routerLink.delete(
