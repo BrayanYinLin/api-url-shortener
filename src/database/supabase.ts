@@ -155,7 +155,7 @@ class Supabase implements Repository<SupabaseClient> {
       .returns<SupabaseViewLinkPerUser[]>()
 
     if (!data || data.length === 0) {
-      throw new NotFoundError('Links per user were not found')
+      return []
     }
 
     return data.map(
