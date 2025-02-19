@@ -259,6 +259,7 @@ class Supabase implements Repository<SupabaseClient> {
     const { data: arrLinks } = await this.database
       .from('tb_link')
       .select()
+      .eq('link_id', id)
       .limit(1)
       .returns<SupabaseTableLink[]>()
 
