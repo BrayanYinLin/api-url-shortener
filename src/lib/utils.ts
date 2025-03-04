@@ -1,6 +1,5 @@
-import { Repository, User } from '../types'
-import { sign } from 'jsonwebtoken'
-import { ENVIRONMENT, JWT_SECRET } from './enviroment'
+import { Repository } from '../types'
+import { ENVIRONMENT } from './enviroment'
 import { CookieOptions } from 'express'
 import { MILLISECONDS_TIMES } from './definitions'
 import { Local } from '../database/local'
@@ -24,21 +23,6 @@ export const parseCookie = ({
     }
   }
   return ''
-}
-
-export const encryptUser = ({ payload }: { payload: User }) => {
-  // const FITHTEEN_DAYS_SECONDS = 60 * 60 * 24 * 15
-  // const TWO_HOURS = 3600 * 2
-
-  const access = sign(payload, JWT_SECRET!, {
-    expiresIn: '2h'
-  })
-
-  const refresh = sign({ id: payload.id! }, JWT_SECRET!, {
-    expiresIn: '15d'
-  })
-
-  return { access, refresh }
 }
 
 type CookieSettings = {

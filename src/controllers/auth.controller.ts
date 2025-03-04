@@ -4,8 +4,7 @@ import {
   GITHUB_SECRET,
   GOOGLE_CALLBACK,
   GOOGLE_CLIENT,
-  GOOGLE_SECRET,
-  JWT_SECRET
+  GOOGLE_SECRET
 } from '../lib/enviroment'
 import { getGithubAccessToken, getGithubUser } from '../lib/services'
 import {
@@ -16,15 +15,16 @@ import {
   TokenNotFound
 } from '../lib/errors'
 import {
-  encryptUser,
   getClearCookiesSettings,
   getRepository,
   setCookiesSettings
 } from '../lib/utils'
-import { JsonWebTokenError, verify } from 'jsonwebtoken'
+import { JsonWebTokenError } from 'jsonwebtoken'
 import { User } from '../types'
 import { ERROR_MESSAGES, PROVIDERS } from '../lib/definitions'
 import axios from 'axios'
+import { decryptToken, encryptUser } from '../lib/authentication'
+import * as jose from 'jose'
 
 class AuthCtrl {
   database!: ReturnType<typeof getRepository>
@@ -46,13 +46,17 @@ class AuthCtrl {
     }
 
     try {
-      const recovered = verify(access_token, JWT_SECRET!) as User
+      const recovered = (await decryptToken(access_token)) as User
 
       const user = await this.database.findUserById({ id: recovered.id! })
 
       return res.json(user)
     } catch (e) {
-      if (e instanceof JsonWebTokenError) {
+      if (e instanceof jose.errors.JWTInvalid) {
+        return res.status(401).json({ msg: e.message })
+      } else if (e instanceof jose.errors.JWTExpired) {
+        return res.status(401).json({ msg: e.message })
+      } else if (e instanceof jose.errors.JWEDecryptionFailed) {
         return res.status(401).json({ msg: e.message })
       } else if (e instanceof NotFoundError) {
         return res.status(404).json({ msg: e.message })
@@ -72,11 +76,11 @@ class AuthCtrl {
     }
 
     try {
-      const recovered = verify(refresh_token, JWT_SECRET!) as Pick<User, 'id'>
+      const recovered = (await decryptToken(refresh_token)) as Pick<User, 'id'>
 
       const user = await this.database.findUserById({ id: recovered.id! })
 
-      const { access } = encryptUser({ payload: user })
+      const { access } = await encryptUser({ payload: user })
       const { access_settings } = setCookiesSettings()
 
       return res.cookie('access_token', access, access_settings).json(user)
@@ -129,7 +133,7 @@ class AuthCtrl {
 
       const newUser =
         checkUser ?? (await this.database.createUser(userRecovered))
-      const { access, refresh } = encryptUser({ payload: newUser })
+      const { access, refresh } = await encryptUser({ payload: newUser })
       const { access_settings, refresh_settings } = setCookiesSettings()
 
       return res
@@ -218,7 +222,7 @@ class AuthCtrl {
       } else {
         newUser = checkUser
       }
-      const { access, refresh } = encryptUser({ payload: newUser })
+      const { access, refresh } = await encryptUser({ payload: newUser })
       const { access_settings, refresh_settings } = setCookiesSettings()
 
       return res

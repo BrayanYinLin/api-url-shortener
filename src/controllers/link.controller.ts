@@ -1,6 +1,5 @@
 import { Request, Response } from 'express'
-import { JWT_SECRET } from '../lib/enviroment'
-import { JsonWebTokenError, verify } from 'jsonwebtoken'
+import { JsonWebTokenError } from 'jsonwebtoken'
 import { User } from '../types'
 import { ERROR_MESSAGES } from '../lib/definitions'
 import { checkLink, checkUpdateLink } from '../models/link.model'
@@ -10,6 +9,7 @@ import {
   NotFoundError
 } from '../lib/errors'
 import { getRepository } from '../lib/utils'
+import { decryptToken } from '../lib/authentication'
 
 class LinkCtrl {
   database!: ReturnType<typeof getRepository>
@@ -29,7 +29,7 @@ class LinkCtrl {
     }
 
     try {
-      const { id } = verify(access_token, JWT_SECRET!) as User
+      const { id } = (await decryptToken(access_token)) as User
 
       const links = await this.database.findEveryLinksByUser({ id: id! })
 

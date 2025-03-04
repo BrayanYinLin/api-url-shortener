@@ -3,11 +3,10 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "dev": "ts-node-dev src/index.ts",
+    "dev": "tsx --watch src/index.ts",
     "build": "tsc",
     "start": "node dist/index.js",
-    "lint": "eslint .",
-    "test": "vitest"
+    "lint": "eslint ."
   },
   "keywords": [],
   "author": "Brayan Yin Lin",
@@ -21,9 +20,10 @@
     "cors": "2.8.5",
     "dotenv": "16.4.7",
     "express": "4.21.2",
+    "jose": "^5.10.0",
     "jsonwebtoken": "9.0.2",
     "morgan": "^1.10.0",
-    "pg": "8.13.1",
+    "pg": "8.13.3",
     "zod": "3.24.1"
   },
   "devDependencies": {
@@ -33,15 +33,15 @@
     "@types/express": "4.17.21",
     "@types/jsonwebtoken": "^9.0.7",
     "@types/morgan": "^1.9.9",
+    "@types/node-jose": "^1.1.13",
     "@types/pg": "^8.11.10",
     "eslint": "^9.18.0",
     "eslint-config-prettier": "^10.0.1",
     "eslint-plugin-prettier": "^5.2.3",
     "globals": "^15.14.0",
     "prettier": "^3.4.2",
-    "ts-node-dev": "^2.0.0",
+    "tsx": "^4.19.3",
     "typescript": "^5.7.3",
-    "typescript-eslint": "^8.21.0",
-    "vitest": "^3.0.4"
+    "typescript-eslint": "^8.21.0"
   }
 }
