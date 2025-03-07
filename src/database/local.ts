@@ -148,12 +148,13 @@ class Local implements Repository<Pool> {
       })
 
       return rows.map(
-        ({ link_id, long, short, clicks, created_at }): Link => ({
+        ({ link_id, long, short, clicks, expires_at, created_at }): Link => ({
           id: String(link_id),
           long,
           short,
           clicks,
-          created_at
+          created_at,
+          expires_at
         })
       )
     } finally {
@@ -169,7 +170,7 @@ class Local implements Repository<Pool> {
         rowCount,
         rows: [link]
       } = await client.query<Link>({
-        text: 'SELECT * FROM vw_link WHERE short = $1',
+        text: 'SELECT * FROM recover_and_delete() WHERE short = $1',
         values: [short]
       })
 
@@ -184,17 +185,18 @@ class Local implements Repository<Pool> {
   }
 
   async createLink(
-    { long, short }: Pick<Link, 'long' | 'short'>,
+    { long, short, expires_at }: Pick<Link, 'long' | 'short' | 'expires_at'>,
     { id }: Pick<User, 'id'>
   ) {
     const client = await this.database.connect()
+    const expiration = expires_at ?? null
 
     try {
       const {
         rows: [inserted]
       } = await client.query<Link>({
-        text: 'INSERT INTO tb_link (link_long, link_short) VALUES ($1, $2) RETURNING link_id AS id;',
-        values: [long, short]
+        text: 'INSERT INTO tb_link (link_long, link_short, link_expires_at) VALUES ($1, $2, $3) RETURNING link_id AS id;',
+        values: [long, short, expiration]
       })
 
       await client.query({

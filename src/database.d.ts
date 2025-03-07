@@ -42,6 +42,7 @@ export type Database = {
           link_index: number
           link_long: string
           link_short: string
+          link_expires_at?: string
         }
         Insert: {
           created_at?: string
@@ -50,6 +51,7 @@ export type Database = {
           link_index?: number
           link_long: string
           link_short: string
+          link_expires_at?: string
         }
         Update: {
           created_at?: string
@@ -58,6 +60,7 @@ export type Database = {
           link_index?: number
           link_long?: string
           link_short?: string
+          link_expires_at?: string
         }
         Relationships: []
       }
@@ -170,6 +173,7 @@ export type Database = {
           id: string | null
           long: string | null
           short: string | null
+          expires_at: string | null
         }
         Insert: {
           clicks?: number | null
@@ -177,6 +181,7 @@ export type Database = {
           id?: string | null
           long?: string | null
           short?: string | null
+          expires_at?: string | null
         }
         Update: {
           clicks?: number | null
@@ -184,6 +189,7 @@ export type Database = {
           id?: string | null
           long?: string | null
           short?: string | null
+          expires_at?: string | null
         }
         Relationships: []
       }
@@ -195,6 +201,7 @@ export type Database = {
           long: string | null
           short: string | null
           user_id: string | null
+          expires_at?: string | null
         }
         Relationships: [
           {

@@ -49,8 +49,8 @@ class LinkCtrl {
   async createLink(req: Request, res: Response) {
     try {
       const { id } = req.user!
-      const { long, short } = req.body
-      const { data, error } = checkLink({ long, short })
+      const { long, short, expires_at } = req.body
+      const { data, error } = checkLink({ long, short, expires_at })
 
       if (error) return res.status(422).json(error)
 
@@ -61,7 +61,7 @@ class LinkCtrl {
       }
 
       const link = await this.database.createLink(
-        { long: data.long, short: data.short },
+        { long: data.long, short: data.short, expires_at: data.expires_at },
         { id: id! }
       )
 
@@ -123,7 +123,8 @@ class LinkCtrl {
         long: link.long,
         short: link.short,
         clicks: Number(link.clicks),
-        created_at: link.created_at
+        created_at: link.created_at,
+        expires_at: link.expires_at
       })
     } catch (e) {
       if (e instanceof MissingParameterError) {

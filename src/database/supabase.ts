@@ -116,7 +116,6 @@ class Supabase implements Repository<SupabaseClient> {
       .returns<SupabaseTableUsers[]>()
 
     if (!newUser) {
-      console.log(newUser)
       throw new OperationError('User was not created')
     }
 
@@ -159,12 +158,13 @@ class Supabase implements Repository<SupabaseClient> {
     }
 
     return data.map(
-      ({ link_id, long, short, clicks, created_at }): Link => ({
+      ({ link_id, long, short, clicks, created_at, expires_at }): Link => ({
         id: String(link_id),
         long,
         short,
         clicks,
-        created_at
+        created_at,
+        expires_at
       })
     )
   }
@@ -251,7 +251,8 @@ class Supabase implements Repository<SupabaseClient> {
       long: recovered.long,
       short: recovered.short,
       clicks: recovered.clicks,
-      created_at: recovered.created_at
+      created_at: recovered.created_at,
+      expires_at: recovered.expires_at
     }
   }
 

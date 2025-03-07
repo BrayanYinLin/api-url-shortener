@@ -38,7 +38,7 @@ export interface Repository<T> {
   findEveryLinksByUser({ id }: Required<Pick<User, 'id'>>): Promise<Link[]>
   findLinkbyShort({ short }: Pick<Link, 'short'>): Promise<Link | null>
   createLink(
-    { long, short }: Pick<Link, 'long' | 'short'>,
+    { long, short }: Pick<Link, 'long' | 'short' | 'expires_at'>,
     { id }: Required<Pick<User, 'id'>>
   ): Promise<Link>
   editLink({ id, long }: Required<Pick<Link, 'id' | 'long'>>): Promise<Link>
