@@ -23,6 +23,11 @@ export type EliminationType = {
   deleted: boolean
 }
 
+export type Cookies = {
+  access: string
+  refresh: string
+}
+
 type SingletonInstance<T> = T | null
 
 export interface Repository<T> {

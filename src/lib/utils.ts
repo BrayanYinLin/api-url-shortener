@@ -5,6 +5,7 @@ import { MILLISECONDS_TIMES } from './definitions'
 import { Local } from '../database/local'
 import { Supabase } from '../database/supabase'
 import { SupabaseClient } from '@supabase/supabase-js'
+import { DateTime } from 'luxon'
 import { Pool } from 'pg'
 
 export const parseCookie = ({
@@ -82,4 +83,13 @@ export const getRepository = (): Repository<Pool | SupabaseClient> => {
   }
 
   return new Local()
+}
+
+export const getExpirationWithTimezone = (time: string) => {
+  const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone
+  const date = DateTime.fromISO(time).setZone(timezone).toISO()
+
+  if (!date) return null
+
+  return date.toString()
 }

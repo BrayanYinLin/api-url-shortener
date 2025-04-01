@@ -7,7 +7,7 @@ const link = z.object({
   short: z.string(),
   clicks: z.number().int().min(0).optional(),
   created_at: z.string().datetime().optional(),
-  expires_at: z.string().datetime({ offset: true })
+  expires_at: z.string().datetime({ offset: true }).nullable()
 })
 
 const updateSchema = z.object({

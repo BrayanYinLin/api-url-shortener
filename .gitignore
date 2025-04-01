@@ -5,6 +5,7 @@ dist/
 # Files
 .env
 *.local
+src/tests/integration/fake-auth.ts
 
 # Editor directories and files
 .vscode/*

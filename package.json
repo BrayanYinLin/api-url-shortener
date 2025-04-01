@@ -6,6 +6,7 @@
     "dev": "tsx --watch src/index.ts",
     "build": "tsc",
     "start": "node dist/index.js",
+    "test": "vitest",
     "lint": "eslint ."
   },
   "keywords": [],
@@ -15,7 +16,7 @@
   "description": "API Rest to manage short links",
   "dependencies": {
     "@supabase/supabase-js": "2.48.1",
-    "axios": "1.7.9",
+    "axios": "^1.8.3",
     "cookie-parser": "^1.4.7",
     "cors": "2.8.5",
     "dotenv": "16.4.7",
@@ -32,16 +33,21 @@
     "@types/cors": "2.8.17",
     "@types/express": "4.17.21",
     "@types/jsonwebtoken": "^9.0.7",
+    "@types/luxon": "^3.4.2",
     "@types/morgan": "^1.9.9",
     "@types/node-jose": "^1.1.13",
     "@types/pg": "^8.11.10",
+    "@types/supertest": "^6.0.2",
     "eslint": "^9.18.0",
     "eslint-config-prettier": "^10.0.1",
     "eslint-plugin-prettier": "^5.2.3",
     "globals": "^15.14.0",
+    "luxon": "^3.5.0",
     "prettier": "^3.4.2",
+    "supertest": "^7.0.0",
     "tsx": "^4.19.3",
     "typescript": "^5.7.3",
-    "typescript-eslint": "^8.21.0"
+    "typescript-eslint": "^8.21.0",
+    "vitest": "^3.0.8"
   }
 }
