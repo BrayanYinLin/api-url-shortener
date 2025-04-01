@@ -186,12 +186,16 @@ class Supabase implements Repository<SupabaseClient> {
   }
 
   async createLink(
-    { long, short }: Pick<Link, 'long' | 'short'>,
+    { long, short, expires_at }: Pick<Link, 'long' | 'short' | 'expires_at'>,
     { id }: Required<Pick<User, 'id'>>
   ): Promise<Link> {
     const { data: links } = await this.database
       .from('tb_link')
-      .insert({ link_long: long, link_short: short })
+      .insert({
+        link_long: long,
+        link_short: short,
+        link_expires_at: expires_at
+      })
       .select()
       .returns<SupabaseTableLink[]>()
 

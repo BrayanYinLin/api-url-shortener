@@ -61,7 +61,11 @@ class LinkCtrl {
       }
 
       const link = await this.database.createLink(
-        { long: data.long, short: data.short, expires_at: data.expires_at },
+        {
+          long: data.long,
+          short: data.short,
+          expires_at: data.expires_at?.trim() === '' ? null : data.expires_at
+        },
         { id: id! }
       )
 

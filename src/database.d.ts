@@ -42,7 +42,7 @@ export type Database = {
           link_index: number
           link_long: string
           link_short: string
-          link_expires_at?: string
+          expires_at?: string
         }
         Insert: {
           created_at?: string
@@ -51,7 +51,7 @@ export type Database = {
           link_index?: number
           link_long: string
           link_short: string
-          link_expires_at?: string
+          expires_at?: string
         }
         Update: {
           created_at?: string
