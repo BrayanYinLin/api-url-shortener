@@ -64,7 +64,10 @@ class LinkCtrl {
         {
           long: data.long,
           short: data.short,
-          expires_at: data.expires_at?.trim() === '' ? null : data.expires_at
+          expires_at:
+            data.expires_at?.trim() === '' || !data.expires_at
+              ? null
+              : data.expires_at
         },
         { id: id! }
       )
